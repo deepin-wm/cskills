@@ -466,10 +466,22 @@ QIcon BluetoothPlugin::icon(Dock::IconType dockPart, Dock::ThemeType themeType) 
 
 > **图标使用主题图标**
 
-> **控制中心图标安装**：当 `flags()` 包含 `Attribute_CanSetting` 时，还需安装图标文件（`.dci` 格式）到 `share/dde-dock/icons/dcc-setting/` 目录，供控制中心读取。参考 notification 插件的 CMakeLists.txt：
+> **控制中心图标安装**：当 `flags()` 包含 `Attribute_CanSetting` 时，还需安装 `.dci` 图标文件到 `share/dde-dock/icons/dcc-setting/` 目录，供控制中心读取。参考 notification 插件的 CMakeLists.txt：
 > ```cmake
 > install(FILES "icons/dcc-notification.dci" DESTINATION share/dde-dock/icons/dcc-setting)
 > ```
+>
+> **`.dci` 文件说明**：`.dci` 是 DTK 图标容器格式（二进制文件），包含不同主题（亮色/暗色）的图标图像。控制中心通过 `QIcon::fromTheme()` 加载，文件名（不含扩展名）即为主题图标名称。
+>
+> **命名规则**：控制中心按顺序查找 `dcc-{pluginName}.dci` → `{pluginName}.dci` → DBus SVG 路径 → 默认图标。推荐命名为 `dcc-{pluginName}.dci`。
+>
+> **生成方式**：使用 `dci-cli` 工具从 SVG 生成：
+> ```bash
+> dci-cli -i icon-light.svg -d icon-dark.svg -o dcc-myplugin.dci -s 16
+> ```
+> 或参考已有插件中的 `.dci` 文件。
+>
+> **描述信息**：控制中心显示的插件名称来自 `pluginDisplayName()`，需正确实现。
 
 ---
 
@@ -634,6 +646,12 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE
 
 install(TARGETS ${PLUGIN_NAME} LIBRARY DESTINATION lib/dde-dock/plugins)
 install(FILES "icons/dcc-bluetooth.dci" DESTINATION share/dde-dock/icons/dcc-setting)
+
+# .dci 文件是 DTK 图标容器格式（二进制），包含亮色/暗色主题图标。
+# 使用 dci-cli 工具从 SVG 源文件生成：
+#   dci-cli -i bluetooth.svg -d bluetooth-dark.svg -o dcc-bluetooth.dci -s 16
+# 文件名必须为 dcc-{pluginName}.dci 或 {pluginName}.dci，
+# 控制中心通过 QIcon::fromTheme("dcc-bluetooth") 加载。
 ```
 
 ---

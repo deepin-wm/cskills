@@ -124,10 +124,28 @@ QIcon icon(Dock::IconType dockPart, Dock::ThemeType themeType) const override {
 
 > **图标使用主题图标**
 
-> **控制中心图标安装**：当 `flags()` 包含 `Attribute_CanSetting` 时，还需安装图标文件（`.dci` 格式）到 `share/dde-dock/icons/dcc-setting/` 目录，供控制中心读取。参考 notification 插件的 CMakeLists.txt：
+> **控制中心图标安装**：当 `flags()` 包含 `Attribute_CanSetting` 时，还需安装 `.dci` 图标文件到 `share/dde-dock/icons/dcc-setting/` 目录，供控制中心读取。参考 notification 插件的 CMakeLists.txt：
 > ```cmake
 > install(FILES "icons/dcc-notification.dci" DESTINATION share/dde-dock/icons/dcc-setting)
 > ```
+>
+> **`.dci` 文件说明**：`.dci` 是 DTK 图标容器格式（二进制文件），包含不同主题（亮色/暗色）和尺寸的图标图像（webp 格式）。控制中心通过 `QIcon::fromTheme()` 加载 `.dci` 文件，文件名（不含扩展名）即为主题图标名称。
+>
+> **命名规则**：控制中心按以下顺序查找图标文件：
+> 1. `share/dde-dock/icons/dcc-setting/dcc-{pluginName}.dci`（优先，推荐命名格式）
+> 2. `share/dde-dock/icons/dcc-setting/{pluginName}.dci`
+> 3. DBus 返回的 `dcc_icon` 路径（SVG 文件）
+> 4. 硬编码的图标映射表
+>
+> 若以上均未找到，将显示默认图标 `dcc_dock_plug_in`。因此 `.dci` 文件必须命名为 `dcc-{pluginName}.dci` 或 `{pluginName}.dci`，其中 `{pluginName}` 与 `pluginName()` 返回值一致。
+>
+> **生成 `.dci` 文件**：使用 DTK 提供的 `dci-cli` 工具从 SVG 源文件生成。典型命令：
+> ```bash
+> dci-cli -i icon-light.svg -d icon-dark.svg -o dcc-myplugin.dci -s 16
+> ```
+> 也可参考已有插件（如 notification、bluetooth）中提交好的 `.dci` 文件直接使用。
+>
+> **描述信息**：控制中心插件列表中的名称和描述来自 `pluginDisplayName()` 返回值，需确保正确实现此方法。
 
 ### 3.3 setMessageCallback — 设置消息回调
 

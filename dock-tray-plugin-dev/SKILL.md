@@ -66,9 +66,12 @@ my-plugin/
 ├── myplugin.qrc          # Qt 资源文件（图标等）
 ├── icons/                # 图标资源目录
 │   ├── myplugin.svg
-│   └── myplugin-dark.svg
+│   ├── myplugin-dark.svg
+│   └── dcc-myplugin.dci  # 控制中心图标（DTK 图标容器格式）
 └── CMakeLists.txt        # 构建配置
 ```
+
+> **`.dci` 文件**：控制中心读取 `.dci` 图标文件显示插件图标。使用 `dci-cli` 从 SVG 生成，命名为 `dcc-{pluginName}.dci`，安装到 `share/dde-dock/icons/dcc-setting/`。详见 `tray-plugin-spec.md` 的 icon() 章节。
 
 ## 开发流程指引
 
